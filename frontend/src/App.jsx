@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   registrar,
   iniciarSesion,
@@ -26,6 +26,26 @@ function App() {
   const [roles, setRoles] = useState({});
   const [mensaje, setMensaje] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [dbOk, setDbOk] = useState(true);
+
+  useEffect(() => {
+    const verificarDB = async () => {
+      try {
+        const respuesta = await fetch('/api/salud-db');
+        if (!respuesta.ok) {
+          if (dbOk) setDbOk(false);
+        } else {
+          if (!dbOk) setDbOk(true);
+        }
+      } catch (error) {
+        if (dbOk) setDbOk(false);
+      }
+    };
+    
+    verificarDB();
+    const intervalo = setInterval(verificarDB, 5000);
+    return () => clearInterval(intervalo);
+  }, [dbOk]);
 
   useEffect(() => {
     if (!sesion) return;
@@ -108,6 +128,12 @@ function App() {
 
   return (
     <div className="app">
+      {!dbOk && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.8)', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <h1 style={{ color: '#ff4d4f' }}>Servicio no disponible</h1>
+          <p>La base de datos se encuentra inactiva o inalcanzable. Por favor, espera a que se restablezca la conexión.</p>
+        </div>
+      )}
       <header className="encabezado">
         <div className="marca">NOVA<span>TECH</span></div>
         {sesion && <button className="salir" onClick={salir}>Cerrar sesión</button>}

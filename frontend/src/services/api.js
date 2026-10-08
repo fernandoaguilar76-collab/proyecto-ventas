@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:4000/api';
+const API_URL = '/api';
 
 async function solicitar(ruta, { method = 'GET', body, token } = {}) {
   const respuesta = await fetch(`${API_URL}${ruta}`, {
