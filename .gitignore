@@ -4,3 +4,9 @@ dist/
 .env.*
 !.env.example
 *.log
+
+# Scripts de despliegue (no subir al repo)
+deploy/
+
+# Documentación interna
+documentacion/
