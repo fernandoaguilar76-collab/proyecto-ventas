@@ -3,6 +3,7 @@ const cors = require('cors');
 const authRoutes = require('./authRoutes');
 const adminRoutes = require('./adminRoutes');
 const productosRoutes = require('./productosRoutes');
+const pedidosRoutes = require('./pedidosRoutes');
 const pool = require('../../infrastructure/postgres');
 
 const app = express();
@@ -28,6 +29,7 @@ app.get('/api/salud-db', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/productos', productosRoutes);
+app.use('/api/pedidos', pedidosRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend ejecutándose en http://localhost:${PORT}`);

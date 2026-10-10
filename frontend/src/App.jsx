@@ -1,10 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
   registrar,
   iniciarSesion,
   obtenerSolicitudes,
   decidirAcceso,
   obtenerProductos,
+  crearPedido,
 } from './services/api';
 import './App.css';
 
@@ -26,6 +27,8 @@ function App() {
   const [roles, setRoles] = useState({});
   const [mensaje, setMensaje] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [comprandoId, setComprandoId] = useState(null);
+  const [pedidoConfirmado, setPedidoConfirmado] = useState(null);
   const [dbOk, setDbOk] = useState(true);
 
   useEffect(() => {
@@ -41,7 +44,7 @@ function App() {
         if (dbOk) setDbOk(false);
       }
     };
-    
+
     verificarDB();
     const intervalo = setInterval(verificarDB, 5000);
     return () => clearInterval(intervalo);
@@ -117,6 +120,27 @@ function App() {
       setMensaje(error.message);
     }
   }
+  async function comprarProducto(producto) {
+    if (comprandoId !== null) return;
+
+    setMensaje('');
+    setPedidoConfirmado(null);
+    setComprandoId(producto.id);
+
+    try {
+      const resultado = await crearPedido(sesion.token, producto.id, 1);
+      setPedidoConfirmado({
+        id: resultado.pedidoId,
+        producto: producto.nombre,
+        total: resultado.total,
+        estado: resultado.estado,
+      });
+    } catch (error) {
+      setMensaje(error.message);
+    } finally {
+      setComprandoId(null);
+    }
+  }
 
   function salir() {
     setSesion(null);
@@ -124,6 +148,8 @@ function App() {
     setProductos([]);
     setMensaje('');
     setModo('login');
+    setPedidoConfirmado(null);
+    setComprandoId(null);
   }
 
   return (
@@ -221,6 +247,17 @@ function App() {
             <section>
               <h2>Productos disponibles</h2>
               <p className="texto-suave">Consulta las laptops aprobadas con sus características y precios.</p>
+
+              {pedidoConfirmado && (
+                <div className="tarjeta confirmacion-pedido" role="status">
+                  <h3>¡Pedido registrado correctamente!</h3>
+                  <p><strong>Número de pedido:</strong> #{pedidoConfirmado.id}</p>
+                  <p><strong>Producto:</strong> {pedidoConfirmado.producto}</p>
+                  <p><strong>Total:</strong> {dinero.format(Number(pedidoConfirmado.total))}</p>
+                  <p><strong>Estado:</strong> Pendiente de pago</p>
+                  <p>Revisa tu confirmación con las instrucciones de pago.</p>
+                </div>
+              )}
               <div className="cuadricula">
                 {productos.map((producto) => (
                   <article className="tarjeta producto" key={producto.id}>
@@ -230,6 +267,14 @@ function App() {
                       <h3>{producto.nombre}</h3>
                       <p>{producto.descripcion}</p>
                       <strong>{dinero.format(Number(producto.precio))}</strong>
+                      <button
+                        className="principal"
+                        type="button"
+                        disabled={comprandoId !== null}
+                        onClick={() => comprarProducto(producto)}
+                      >
+                        {comprandoId === producto.id ? 'Procesando compra...' : 'Comprar'}
+                      </button>
                     </div>
                   </article>
                 ))}

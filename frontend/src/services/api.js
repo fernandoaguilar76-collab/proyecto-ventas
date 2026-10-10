@@ -37,3 +37,13 @@ export const decidirAcceso = (token, id, decision, rol) =>
 
 export const obtenerProductos = (token) =>
   solicitar('/productos', { token });
+// Registrar un pedido de compra
+export const crearPedido = (token, productoId, cantidad = 1) =>
+  solicitar('/pedidos', {
+    method: 'POST',
+    token,
+    body: {
+      productoId,
+      cantidad,
+    },
+  });

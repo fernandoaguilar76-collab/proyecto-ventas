@@ -7,8 +7,7 @@ node_modules/
 # Scripts de prueba y utilidades (no subir)
 scripts/
 
-# Archivos SQL (datos sensibles)
-sql/
+# Scripts SQL versionados para facilitar el despliegue en AWS
 
 # Scripts de prueba sueltos
 test-db.js

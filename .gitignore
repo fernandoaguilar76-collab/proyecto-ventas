@@ -10,3 +10,4 @@ deploy/
 
 # Documentación interna
 documentacion/
+frontend/src/*.respaldo
